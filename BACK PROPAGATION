@@ -1,0 +1,87 @@
+# عبدالرحمن السعيد شحاته 
+#4221367
+import math
+
+# تفعيل الدالة السينيه والمشتقة الخاصة بها
+def sigmoid(x):
+    return 1 / (1 + math.exp(-x))
+
+def sigmoid_derivative(x):
+    return x * (1 - x)  
+
+# دالة لحساب الخطأ التربيعي
+def squared_error(target, output):
+    return 0.5 * (target - output) ** 2
+
+# المدخلات
+i1, i2 = 0.05, 0.10
+
+# الأوزان الأولية
+weights = {
+    "w1": 0.15, "w2": 0.2, "w3": 0.25, "w4": 0.3,
+    "w5": 0.4, "w6": 0.45, "w7": 0.5, "w8": 0.55
+}
+
+# القيم الابتدائية للانحياز
+b1, b2 = 0.35, 0.6
+
+# الأهداف
+target_o1, target_o2 = 0.01, 0.99
+
+# معدل التعلم
+learning_rate = 0.5
+
+# حساب مدخلات وخروج الطبقة المخفية
+net_h1 = (i1 * weights["w1"]) + (i2 * weights["w2"]) + b1
+net_h2 = (i1 * weights["w3"]) + (i2 * weights["w4"]) + b1
+h1, h2 = sigmoid(net_h1), sigmoid(net_h2)
+
+# حساب مدخلات وخروج الطبقة الأخيرة
+net_o1 = (h1 * weights["w5"]) + (h2 * weights["w6"]) + b2
+net_o2 = (h1 * weights["w7"]) + (h2 * weights["w8"]) + b2
+o1, o2 = sigmoid(net_o1), sigmoid(net_o2)
+
+# حساب الخطأ
+error_o1, error_o2 = squared_error(target_o1, o1), squared_error(target_o2, o2)
+total_error = error_o1 + error_o2
+
+# حساب التدرج العكسي للطبقة الأخيرة
+delta_o1 = (o1 - target_o1) * sigmoid_derivative(o1)
+delta_o2 = (o2 - target_o2) * sigmoid_derivative(o2)
+
+# حساب التحديثات للأوزان بين الطبقة المخفية والمخرجات
+dw5, dw6 = h1 * delta_o1, h2 * delta_o1
+dw7, dw8 = h1 * delta_o2, h2 * delta_o2
+
+# حساب تحديثات الانحياز للطبقة الأخيرة
+db2 = delta_o1 + delta_o2
+
+# حساب التدرج العكسي للطبقة المخفية
+delta_h1 = (delta_o1 * weights["w5"] + delta_o2 * weights["w7"]) * sigmoid_derivative(h1)
+delta_h2 = (delta_o1 * weights["w6"] + delta_o2 * weights["w8"]) * sigmoid_derivative(h2)
+
+# حساب التحديثات للأوزان بين المدخلات والطبقة المخفية
+dw1, dw2 = i1 * delta_h1, i2 * delta_h1
+dw3, dw4 = i1 * delta_h2, i2 * delta_h2
+
+# حساب تحديثات الانحياز للطبقة المخفية
+db1 = delta_h1 + delta_h2
+
+# تحديث الأوزان والانحيازات
+weights["w1"] -= learning_rate * dw1
+weights["w2"] -= learning_rate * dw2
+weights["w3"] -= learning_rate * dw3
+weights["w4"] -= learning_rate * dw4
+weights["w5"] -= learning_rate * dw5
+weights["w6"] -= learning_rate * dw6
+weights["w7"] -= learning_rate * dw7
+weights["w8"] -= learning_rate * dw8
+b1 -= learning_rate * db1
+b2 -= learning_rate * db2
+
+# طباعة القيم المحدثة
+print("\nUpdated Weights and Biases:")
+for key, value in weights.items():
+    print(f"{key}: {value:.4f}")
+
+print(f"b1: {b1:.4f}, b2: {b2:.4f}")
